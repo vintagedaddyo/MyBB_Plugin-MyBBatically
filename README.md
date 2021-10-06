@@ -3,10 +3,10 @@
 Plugin Info:
 Name: MyBBatically
 Description: An automatic updater for MyBB.
-Author: Polarbear541 & Vernier
-Version: 1.4
-Compatibility: 1.6.x
-Files: 3 (1 plugin file, 1 language file and 1 admin module)
+Author: Polarbear541 & Vernier & Vintagedaddyo
+Version: 1.5
+Compatibility: 1.8.x
+Files: 4 (1 plugin file, 2 language file and 1 admin module)
 There are no database changes in this plugin.
 There are no template changes in this plugin.
 
@@ -18,6 +18,7 @@ Upload the MyBBatically files to your MyBB install:
 
 files/admin/modules/tools/mybbatically.php to yourforum/admin/modules/tools/mybbatically.php
 files/inc/languages/english/admin/mybbatically.lang.php to yourforum/inc/languages/english/admin/mybbatically.lang.php
+files/inc/languages/englishgb/admin/mybbatically.lang.php to yourforum/inc/languages/english/admin/mybbatically.lang.php
 files/inc/plugins/mybbatically.php to yourforum/inc/plugins/mybbatically.php
 
 Go to ACP > Plugins > Activate MyBBatically
