@@ -18,11 +18,15 @@
  *
  */
 
-// Define Access IN_MYBB
+// for Dev purposes: do not uncomment
+//error_reporting(E_ALL); // Report on all errors
+//ini_set('display_errors', '1'); // Display those errors through the web page.
+
+// Disallow direct access to this file for security reasons
 
 if(!defined("IN_MYBB"))
 {
-	die("You Cannot Access This File Directly. Please Make Sure IN_MYBB Is Defined.");
+	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
 // Load Lang
@@ -59,11 +63,25 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 		'description' => $lang->update_plugin_desc
 	);
 
-	require_once MYBB_ROOT."inc/class_xml.php";
+	//require_once MYBB_ROOT."inc/class_xml.php";
 
-	$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+	if(version_compare(PHP_VERSION, '8.0.0', '>='))
+	{
+		require_once MYBB_ROOT."inc/class_xmlparser.php";
+
+		$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+
+	    $parser = new MyBBXMLParser($contents);
+	}
 	
-	$parser = new XMLParser($contents);
+	else
+	{
+		require_once MYBB_ROOT."inc/class_xml.php";
+
+		$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+
+	    $parser = new XMLParser($contents);
+	}	
 
 	$tree = $parser->get_tree();
 	
@@ -248,7 +266,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 
 				admin_redirect('../install/upgrade.php');
 
-				exit;
+				exit();
 			}
 
 			elseif($mybb->input['lock_true'] != 'lock_checked')
@@ -275,7 +293,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 
 				admin_redirect('../install/index.php');
 
-				exit;
+				exit();
 			}
 
 			elseif($mybb->input['remove_true'] != 'remove_checked')
@@ -294,7 +312,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 
 			admin_redirect('index.php?module=tools-mybbatically&amp;action=upgrade');
 
-			exit;
+			exit();
 		}
 
 		elseif($mybb->request_method == "post" && $mybb->input['reinstall_true'] != 'reinstall_checked')
@@ -303,7 +321,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 
 			admin_redirect('index.php?module=tools-mybbatically&amp;action=upgrade');
 
-			exit;
+			exit();
 		}
 		
 		$form->end();
@@ -391,7 +409,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 
 				admin_redirect("index.php?module=tools-mybbatically&amp;action=statistics");
 
-				exit;
+				exit();
 			}
 
 			else
@@ -400,7 +418,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 
 				admin_redirect("index.php?module=tools-mybbatically&amp;action=update_plugin");
 
-				exit;
+				exit();
 			}
 
 		}
@@ -408,5 +426,3 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 		$page->output_footer();
 	}
 }
-
-?>

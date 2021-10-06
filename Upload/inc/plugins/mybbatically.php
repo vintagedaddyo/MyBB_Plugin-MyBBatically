@@ -18,13 +18,15 @@
  *
  */
 
-// Access Define IN_MYBB
+// for Dev purposes: do not uncomment
+//error_reporting(E_ALL); // Report on all errors
+//ini_set('display_errors', '1'); // Display those errors through the web page.
 
+// Disallow direct access to this file for security reasons
 if(!defined("IN_MYBB"))
 {
-	die("You Cannot Access This File Directly. Please Make Sure IN_MYBB Is Defined.");
+	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
-
 
 // Plugin Hooks
 
@@ -214,11 +216,24 @@ function mybbatically_run()
 
 	$lang->load('mybbatically');
 	
-	require_once MYBB_ROOT."inc/class_xml.php";
+	//require_once MYBB_ROOT."inc/class_xml.php";
 
-	$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+	if(version_compare(PHP_VERSION, '8.0.0', '>='))
+	{
+		require_once MYBB_ROOT."inc/class_xmlparser.php";
 
-	$parser = new XMLParser($contents);
+		$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+
+		$parser = new MyBBXMLParser($contents);
+	}
+	else
+	{
+		require_once MYBB_ROOT."inc/class_xml.php";
+
+		$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+
+	    $parser = new XMLParser($contents);
+	}	
 
 	$tree = $parser->get_tree();
 
@@ -257,7 +272,7 @@ function mybbatically_run()
 	{  
 		echo $lang->could_not_create_zip;
 
-		exit;  
+		exit();  
 	}
 
 	if($zip->open("$file_zipped") != "true") 
@@ -469,9 +484,26 @@ function mybbatically_get_latest_version()
 {
 	global $page, $parser, $table;
 
-	require_once MYBB_ROOT."inc/class_xml.php";
+	//require_once MYBB_ROOT."inc/class_xml.php";
 
-	$contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");
+	if(version_compare(PHP_VERSION, '8.0.0', '>='))
+	{
+		require_once MYBB_ROOT."inc/class_xmlparser.php";
+
+	    $contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");		
+
+	    $parser = new MyBBXMLParser($contents);
+	    
+	}
+	else
+	{
+		require_once MYBB_ROOT."inc/class_xml.php";
+
+	    $contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");		
+
+	    $parser = new XMLParser($contents);
+
+	}	
 	
 	if(!$contents)
 	{
@@ -479,11 +511,9 @@ function mybbatically_get_latest_version()
 
 		$page->output_footer();
 
-		exit;
+		exit();
 	}
 	
-	$parser = new XMLParser($contents);
-
 	$tree = $parser->get_tree();
 
 	if(!empty($tree['results']['result']))
@@ -526,7 +556,7 @@ function mybbatically_update_plugin()
 	
 	$lang->load('mybbatically');
 
-$download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_latest_version() . ".zip";
+    $download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_latest_version() . ".zip";
 
 	$file_zipped = "mybbatically_plugin.zip";
 
@@ -546,7 +576,7 @@ $download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_lat
 	{  
 		echo $lang->could_not_create_zip;
 
-		exit;  
+		exit();  
 	}
 
 	if($zip->open("$file_zipped") != "true") 
@@ -573,11 +603,9 @@ $download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_lat
 
 	rmdir_recursive($dir);
 	
-	//Remove zip
+	// Remove zip
 
 	unlink('mybbatically_plugin.zip');
 	
 	log_admin_action(array('do' => $lang->updated_plugin_on.date($mybb->settings['dateformat']).$lang->at.date($mybb->settings['timeformat'])));
 }
-
-?>

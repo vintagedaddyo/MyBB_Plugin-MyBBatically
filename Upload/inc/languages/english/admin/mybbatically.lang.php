@@ -170,5 +170,3 @@ $l['update_plugin_header'] = 'Update MyBBatically';
 $l['update_plugin_info'] = '<span style=\'font-size: 25px;\'><strong><u>Updating MyBBatically</u></strong></span><br /> MyBBatically, like any other software, requires updates from time to time. These may be simple bug fixes, security fixes or feature updates. It is very important to keep your version of MyBBatically up to date to ensure MyBBatically works to it\'s full potential. This updater allows you to update MyBBatically directly from your Admin Control Panel to ensure you\'re never running an outdated version of MyBBatically.';
 
 $l['button_update_plugin'] = 'Update MyBBatically';
-
-?>
