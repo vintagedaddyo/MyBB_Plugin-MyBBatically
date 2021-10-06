@@ -50,7 +50,7 @@ function mybbatically_info()
 		"author"        => "Polarbear541 & Vernier & Vintagedaddyo",
 		"version"        => "1.5",
 		"guid"             => "31d01c38e6f2dc1a790065801975eab6",
-		"compatibility" => "18*"
+		"compatibility" => "16*, 18*"
 	);
 }
 
