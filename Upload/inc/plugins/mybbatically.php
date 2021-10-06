@@ -1,12 +1,41 @@
 <?php
+/**
+ * This file is part of the MyBBatically plugin for MyBB.
+ * Copyright (C) Polarbear541 & Vernier & Vintagedaddyo
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+// Access Define IN_MYBB
+
 if(!defined("IN_MYBB"))
 {
 	die("You Cannot Access This File Directly. Please Make Sure IN_MYBB Is Defined.");
 }
 
+
+// Plugin Hooks
+
 $plugins->add_hook('admin_tools_menu', 'mybbatically_admin_tools_menu');
+
 $plugins->add_hook('admin_tools_action_handler', 'mybbatically_admin_tools_action_handler');
+
 $plugins->add_hook('admin_tools_permissions', 'mybbatically_admin_tools_permissions');
+
+
+// Plugin Information
 
 function mybbatically_info()
 {
@@ -17,13 +46,16 @@ function mybbatically_info()
 	return array(
 		"name"  => $lang->mybbatically,
 		"description"=> $lang->mybbatically_desc,
-		"website"        => "http://community.mybb.com/thread-128545.html",
-		"author"        => "Polarbear541 & Vernier",
-		"version"        => "1.4",
+		"website"        => "https://community.mybb.com/thread-128545.html",
+		"author"        => "Polarbear541 & Vernier & Vintagedaddyo",
+		"version"        => "1.5",
 		"guid"             => "31d01c38e6f2dc1a790065801975eab6",
-		"compatibility" => "16*"
+		"compatibility" => "18*"
 	);
 }
+
+
+// Plugin Activation
 
 function mybbatically_activate()
 {
@@ -36,10 +68,11 @@ function mybbatically_activate()
 		'title'      => $lang->mybbatically,
 		'description'    => $lang->settings_desc,
 		'disporder'    => "1",
-		'isdefault'  => "0",
+		'isdefault'  => "0"
 	);
 	
 	$db->insert_query('settinggroups', $mybbatically_group);
+
 	$gid = $db->insert_id(); 
 	
 	$mybbatically_setting_1 = array(
@@ -49,20 +82,29 @@ function mybbatically_activate()
 		'optionscode'    => 'onoff',
 		'value'        => '1',
 		'disporder'        => 1,
-		'gid'            => intval($gid),
+		'gid'            => intval($gid)
 	);
 	
 	$db->insert_query('settings', $mybbatically_setting_1);
+
 	rebuild_settings();
 }
+
+
+// Plugin De-activation
 
 function mybbatically_deactivate()
 {
 	global $db;
+
 	$db->query("DELETE FROM ".TABLE_PREFIX."settings WHERE name IN ('mybbatically_global_switch')");
 	$db->query("DELETE FROM ".TABLE_PREFIX."settinggroups WHERE name='mybbatically'");
+
 	rebuild_settings();
 }
+
+
+// Plugin Admin Menu
 
 function mybbatically_admin_tools_menu(&$sub_menu)
 {
@@ -74,15 +116,23 @@ function mybbatically_admin_tools_menu(&$sub_menu)
 	}
 }
 
+
+// Plugin Admin Tools Action Handler
+
 function mybbatically_admin_tools_action_handler(&$actions)
 {
 	$actions['mybbatically'] = array('active' => 'mybbatically', 'file' => 'mybbatically.php');
 }
 
+
+// Plugin Admin Tools Permissions
+
 function mybbatically_admin_tools_permissions(&$admin_permissions)
 {
 	global $lang;
+
 	$lang->load('mybbatically');
+
 	$admin_permissions['mybbatically'] = $lang->allowed_to_upgrade_board;
 } 
 
@@ -91,6 +141,7 @@ function recursive_move($dirsource, $dirdest)
 	global $mybb;
 	
 	if(is_dir($dirsource))$dir_handle=opendir($dirsource);
+
 	$dirname = substr($dirsource,strrpos($dirsource,"/")+1);
 	
 	if ($mybb->request_method == "post")
@@ -102,11 +153,14 @@ function recursive_move($dirsource, $dirdest)
 				if(!is_dir($dirsource."/".$file))
 				{
 					@copy($dirsource."/".$file, $dirdest."/".$dirname."/".$file);
+
 					unlink($dirsource."/".$file);
 				}
+
 				else
 				{
 					$dirdest1 = $dirdest."/".$dirname;
+
 					recursive_move($dirsource."/".$file, $dirdest1);
 				}
 			}
@@ -114,26 +168,32 @@ function recursive_move($dirsource, $dirdest)
 	}
 	
 	closedir($dir_handle);
+
 	rmdir($dirsource);
 }
 
 function rmdir_recursive($dir) 
 {
 	$files = scandir($dir);
+
 	array_shift($files);    //Remove '.' from array
+
 	array_shift($files);    //Remove '..' from array
 	
 	foreach($files as $file) 
 	{
 		$file = $dir . '/' . $file;
+
 		if(is_dir($file)) 
 		{
 			rmdir_recursive($file);
+
 			if(file_exists($file))
 			{
 				rmdir($file);
 			}
-		} 
+		}
+
 		else
 		{
 			unlink($file);
@@ -143,45 +203,68 @@ function rmdir_recursive($dir)
 	rmdir($dir);
 }
 
+
+// Plugin Run
+
 function mybbatically_run()
 {
 	global $config, $lang, $mybb;
-	
+
+	ob_start();
+
 	$lang->load('mybbatically');
 	
 	require_once MYBB_ROOT."inc/class_xml.php";
-	$contents = fetch_remote_file("http://www.mybb.com/version_check.php");
+
+	$contents = fetch_remote_file("https://www.mybb.com/version_check.php");
+
 	$parser = new XMLParser($contents);
+
 	$tree = $parser->get_tree();
+
 	$latest_code = $tree['mybb']['version_code']['value'];
 	
-	$download_url = "http://resources.mybb.com/downloads/mybb_$latest_code.zip";  
+	$download_url = "https://resources.mybb.com/downloads/mybb_$latest_code.zip";
+
 	$file_zipped = "mybbatically.zip";
+
 	$file_unzipped = "mybbatically";
+
 	$fetch_file = fetch_remote_file($download_url);
+
 	$fp = fopen($file_zipped, "w");
-	fwrite($fp,$fetch_file); 
+
+	fwrite($fp,$fetch_file);
+
 	fclose($fp);
+
 	// Check if the install directory exists, if it doesn't, lets create it!
+
 	if(!is_dir(MYBB_ROOT."/install"))
 	{
 		mkdir(MYBB_ROOT."/install");
+
 		mkdir(MYBB_ROOT."/install/images");
+
 		mkdir(MYBB_ROOT."/install/resources");
 	}
 
 	//Unzip the file  
+
 	$zip = new ZipArchive;
 	
 	if(!$zip) 
 	{  
 		echo $lang->could_not_create_zip;
+
 		exit;  
-	}  
+	}
+
 	if($zip->open("$file_zipped") != "true") 
 	{  
 		echo $lang->could_not_open_zip;  
-	}  
+	}
+
 	if(!$zip->extractTo("$file_unzipped"))
 	{
 		echo $lang->could_not_extract_zip;
@@ -190,11 +273,14 @@ function mybbatically_run()
 	if($mybb->request_method == "post" && $mybb->input['overwrite_images_true'] != 'overwrite_images_checked')
 	{
 		$dir = './mybbatically/Upload/images';
+
 		rmdir_recursive($dir);
 	}
 	
 	// Move files
+
 	$srcDir = './mybbatically/Upload/';
+
 	$destDir = '../';
 	
 	rename($srcDir.'/admin', $srcDir.'/'.$config['admin_dir']);
@@ -204,25 +290,35 @@ function mybbatically_run()
 	$zip->close();
 	
 	//Delete remaining directories
+
 	$dir = './mybbatically';
+
 	rmdir_recursive($dir);
 	
 	//Remove zip
+
 	unlink('mybbatically.zip');
 	
 	log_admin_action(array('do' => $lang->upgraded_board_on.date($mybb->settings['dateformat']).$lang->at.date($mybb->settings['timeformat'])));
+
+    ob_end_flush();	
 }
+
+// Plugin Zip Files
 
 function zipfiles($source)
 {
 	//Check if source exists
+
     if(!file_exists($source)) 
 	{
 		return false;
     }
 	
 	//Start writing to file zip on server
+
     $zip = new ZipArchive();
+
     if(!$zip->open('files.zip', ZIPARCHIVE::CREATE)) 
 	{
 		return false;
@@ -239,6 +335,7 @@ function zipfiles($source)
             $file = str_replace('\\', '/', $file);
 			
             //Ignore '.' and '..'
+
             if(in_array(substr($file, strrpos($file, '/')+1), array('.', '..'))) continue;
 			
             $file = realpath($file);
@@ -261,28 +358,47 @@ function zipfiles($source)
     return $zip->close();
 }
 
+
+// Plugin Backup Files
+
 function mybbatically_backup_files()
 {
 	zipfiles('../');
+
 	header('Content-Type: application/zip');
+
 	header('Content-Disposition: attachment; filename=MyBBatically_filebackup_'.microtime().'.zip');
+
 	readfile("./files.zip");
+
 	unlink("./files.zip");
 }
+
+
+// Plugin Backup DBS
 
 function mybbatically_backup_db()
 {
 	global $db, $config;
+
 	$fp = fopen('./db.sql', 'w');
+
 	$db->set_table_prefix('');
+
 	$tables = $db->list_tables($config['database']['database'], $config['database']['table_prefix']);
+
 	$time = date('dS F Y \a\t H:i', TIME_NOW);
+
 	$header = "-- MyBB Database Backup\n-- Generated: {$time}\n-- -------------------------------------\n\n";
+
 	$contents = $header;
+
 	foreach($tables as $table)
 	{
 		$field_list = array();
+
 		$fields_array = $db->show_fields_from($table);
+
 		foreach($fields_array as $field)
 		{
 			$field_list[] = $field['Field'];
@@ -291,42 +407,63 @@ function mybbatically_backup_db()
 		$fields = "`".implode("`,`", $field_list)."`";
 		
 		$structure = $db->show_create_table($table).";\n";
+
 		$contents .= $structure;
+
 		fwrite($fp, $contents);
+
 		$contents = '';	
 		
 		$query = $db->simple_select($table);
+
 		while($row = $db->fetch_array($query))
 		{
 			$insert = "INSERT INTO {$table} ($fields) VALUES (";
+
 			$comma = '';
+
 			foreach($field_list as $field)
 			{
 				if(!isset($row[$field]) || is_null($row[$field]))
 				{
 					$insert .= $comma."NULL";
 				}
+
 				else
 				{
 					$insert .= $comma."'".$db->escape_string($row[$field])."'";
 				}
+
 				$comma = ',';
 			}
+
 			$insert .= ");\n";
+
 			$contents .= $insert;
+
 			fwrite($fp, $contents);
+
 			$contents = '';	
 		}
 	}
+
 	$db->set_table_prefix(TABLE_PREFIX);
+
 	fwrite($fp, $contents);
+
 	fclose($fp);
 	
 	header('Content-Type: application/sql');
+
 	header('Content-Disposition: attachment; filename=MyBBatically_dbbackup_'.microtime().'.sql');
+
 	readfile("./db.sql");
+
 	unlink("./db.sql");
 }
+
+
+// Plugin Get Latest Version
 
 function mybbatically_get_latest_version()
 {
@@ -334,16 +471,19 @@ function mybbatically_get_latest_version()
 
 	require_once MYBB_ROOT."inc/class_xml.php";
 
-	$contents = fetch_remote_file("http://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");
+	$contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");
 	
 	if(!$contents)
 	{
 		$page->output_inline_error($lang->error_communication_problem);
+
 		$page->output_footer();
+
 		exit;
 	}
 	
 	$parser = new XMLParser($contents);
+
 	$tree = $parser->get_tree();
 
 	if(!empty($tree['results']['result']))
@@ -351,7 +491,9 @@ function mybbatically_get_latest_version()
 		if(array_key_exists("tag", $tree['results']['result']))
 		{
 			$only_plugin = $tree['results']['result'];
+
 			unset($tree['results']['result']);
+
 			$tree['results']['result'][0] = $only_plugin;
 		}
 	
@@ -362,13 +504,21 @@ function mybbatically_get_latest_version()
 }
 }
 
+
+// Plugin Current Version
+
 function mybbatically_get_current_version()
 {
 		$info = array();
 			$infofunction = "mybbatically_info";
+
 			$mybbatically_info = $infofunction();
+
 			return $mybbatically_info['version'];
 }
+
+
+// Plugin Update Plugin
 
 function mybbatically_update_plugin()
 {
@@ -377,11 +527,17 @@ function mybbatically_update_plugin()
 	$lang->load('mybbatically');
 
 $download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_latest_version() . ".zip";
+
 	$file_zipped = "mybbatically_plugin.zip";
+
 	$file_unzipped = "mybbatically_plugin";
+
 	$fetch_file = fetch_remote_file($download_url);
+
 	$fp = fopen($file_zipped, "w");
-	fwrite($fp,$fetch_file); 
+
+	fwrite($fp,$fetch_file);
+
 	fclose($fp);
 
 	$zip = new ZipArchive;
@@ -389,18 +545,22 @@ $download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_lat
 	if(!$zip) 
 	{  
 		echo $lang->could_not_create_zip;
+
 		exit;  
-	}  
+	}
+
 	if($zip->open("$file_zipped") != "true") 
 	{  
 		echo $lang->could_not_open_zip;  
-	}  
+	}
+
 	if(!$zip->extractTo("$file_unzipped"))
 	{
 		echo $lang->could_not_extract_zip;
 	}
 
 	$srcDir = './mybbatically_plugin/files/';
+
 	$destDir = '../';
 
 	recursive_move($srcDir,$destDir);
@@ -408,10 +568,13 @@ $download_url = "http://vernier.me/plugins/mybbatically/" . mybbatically_get_lat
 	$zip->close();
 
 	//Delete remaining directories
+
 	$dir = './mybbatically_plugin';
+
 	rmdir_recursive($dir);
 	
 	//Remove zip
+
 	unlink('mybbatically_plugin.zip');
 	
 	log_admin_action(array('do' => $lang->updated_plugin_on.date($mybb->settings['dateformat']).$lang->at.date($mybb->settings['timeformat'])));
