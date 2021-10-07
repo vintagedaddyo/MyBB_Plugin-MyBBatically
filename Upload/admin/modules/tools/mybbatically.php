@@ -57,13 +57,13 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 		'description' => $lang->backup_desc
 	);
 	
-	$sub_tabs['update_plugin'] = array(
-		'title' => $lang->update_plugin,
-		'link' => "index.php?module=tools-mybbatically&amp;action=update_plugin",
-		'description' => $lang->update_plugin_desc
-	);
+	// note current: temp tab remove until todo: plug update func link/file fix
 
-	//require_once MYBB_ROOT."inc/class_xml.php";
+	//$sub_tabs['update_plugin'] = array(
+	//	'title' => $lang->update_plugin,
+	//	'link' => "index.php?module=tools-mybbatically&amp;action=update_plugin",
+	//	'description' => $lang->update_plugin_desc
+	//);
 
 	if(version_compare(PHP_VERSION, '8.0.0', '>='))
 	{
@@ -341,6 +341,7 @@ if($mybb->settings['mybbatically_global_switch'] == 1)
 			mybbatically_backup_db();
 		}
 	}
+
 	elseif($mybb->input['action'] == "backup")
 	{
 		$page->output_header($lang->mybbatically);

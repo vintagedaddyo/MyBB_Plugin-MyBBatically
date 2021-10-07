@@ -23,6 +23,7 @@
 //ini_set('display_errors', '1'); // Display those errors through the web page.
 
 // Disallow direct access to this file for security reasons
+
 if(!defined("IN_MYBB"))
 {
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
@@ -226,6 +227,7 @@ function mybbatically_run()
 
 		$parser = new MyBBXMLParser($contents);
 	}
+
 	else
 	{
 		require_once MYBB_ROOT."inc/class_xml.php";
@@ -365,6 +367,7 @@ function zipfiles($source)
             }
         }
     }
+
     elseif(is_file($source) === true)
     {
         $zip->addFromString(basename($source), file_get_contents($source));
@@ -484,22 +487,21 @@ function mybbatically_get_latest_version()
 {
 	global $page, $parser, $table;
 
-	//require_once MYBB_ROOT."inc/class_xml.php";
-
 	if(version_compare(PHP_VERSION, '8.0.0', '>='))
 	{
 		require_once MYBB_ROOT."inc/class_xmlparser.php";
 
-	    $contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");		
+	    $contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");	
 
 	    $parser = new MyBBXMLParser($contents);
 	    
 	}
+
 	else
 	{
 		require_once MYBB_ROOT."inc/class_xml.php";
 
-	    $contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");		
+	    $contents = fetch_remote_file("https://mods.mybb.com/xmlbrowse.php?type=mod&keywords=mybbatically");			
 
 	    $parser = new XMLParser($contents);
 
